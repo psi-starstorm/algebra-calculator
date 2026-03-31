@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <body>
+  <link rel="stylesheet" href="style.css">
+
+    <h1>Algebra Calculator</h1>
+    <p>Enter a single variable linear equation below and click solve! At this time, the calculator cannot solve divison problems where x is in the denominator.</p>
+
+<input type="text" id="equation" placeholder="Enter equation like 2x+3=7" size="30">
+<button onclick="solveEquation()">Solve</button>
+
+<h3 id="result"></h3>
+
+<script>
+function solveEquation() 
+{
+    let input = document.getElementById("equation").value.replace(/\s+/g, "");
+
+    if (!input.includes("=")) 
+    {
+        document.getElementById("result").innerText = "Invalid equation format :(";
+        return;
+    }
+
+    let [left, right] = input.split("=");
+
+    function parseSide(side) 
+    {
+        let xCoeff = 0;
+        let constant = 0;
+
+        side = side.replace(/-/g, "+-");
+        let terms = side.split("+");
+
+        terms.forEach(term => 
+        {
+            if (!term) return; // skip empty terms
+
+            // DIVISION!!!!!!!!!!!!!!
+            if (term.includes("/")) 
+            {
+                let parts = term.split("/");
+                if (parts.length !== 2) return; // safety check
+
+                let numerator = parts[0];
+                let denominator = parseFloat(parts[1]);
+
+                if (isNaN(denominator) || denominator === 0) return;
+
+                if (numerator.includes("x")) 
+                {
+                    let coef = numerator.replace("x", "");
+                    if (coef === "" || coef === "+") coef = 1;
+                    if (coef === "-") coef = -1;
+
+                    xCoeff += parseFloat(coef) / denominator;
+                } 
+                else 
+                {
+                    constant += parseFloat(numerator) / denominator;
+                }
+            }
+
+            // X TERM (no division)
+            else if (term.includes("x")) 
+            {
+                let coef = term.replace("x", "");
+                if (coef === "" || coef === "+") coef = 1;
+                if (coef === "-") coef = -1;
+
+                xCoeff += parseFloat(coef);
+            }
+
+            // CONSTANT TERM
+            else 
+            {
+                constant += parseFloat(term);
+            }
+        });
+
+        return { xCoeff, constant };
+    }
+
+    let leftParsed = parseSide(left);
+    let rightParsed = parseSide(right);
+
+    let finalXCoeff = leftParsed.xCoeff - rightParsed.xCoeff;
+    let finalConstant = rightParsed.constant - leftParsed.constant;
+
+    if (finalXCoeff === 0) 
+    {
+        document.getElementById("result").innerText = "No solution or infinite solutions.";
+        return;
+    }
+
+    let x = finalConstant / finalXCoeff;
+
+    if (isNaN(x)) 
+    {
+        document.getElementById("result").innerText = "Invalid equation :(";
+        return;
+    }
+
+    document.getElementById("result").innerText = "x = " + x;
+}
+</script>
+
+  </body>
+</html>
