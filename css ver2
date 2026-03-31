@@ -9,7 +9,7 @@ body {
   padding: 20px;
 }
 
-/* Center content without breaking mobile */
+/* Center content */
 main {
   max-width: 700px;
   margin: 0 auto;
