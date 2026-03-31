@@ -1,0 +1,97 @@
+body {
+  background-color: #D1C7D6;
+  color: #2E1F36; 
+  font-family: Georgia, serif;
+  font-size: 18px;
+  line-height: 1.6;
+
+  margin: 0;
+  padding: 20px;
+}
+
+/* Center content without breaking mobile */
+main {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Headings */
+h1 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+/* Input field */
+input {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px;
+  font-size: 16px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+
+  border: 2px solid #46334F;
+  border-radius: 6px;
+}
+
+/* Button */
+button {
+  font-size: 16px;
+  padding: 10px 16px;
+  margin-top: 5px;
+
+  background-color: #46334F;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+
+  min-height: 44px; /* better for touch */
+}
+
+/* Button hover */
+button:hover {
+  background-color: #5B3F66;
+}
+
+input:focus,
+button:focus {
+  outline: 3px solid #007BFF;
+  outline-offset: 2px;
+}
+
+#result {
+  margin-top: 15px;
+  font-weight: bold;
+}
+
+#steps {
+  margin-top: 15px;
+}
+
+#steps b {
+  display: inline-block;
+  margin-top: 10px;
+}
+
+/* Dark mode*/
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #1E1E1E;
+    color: #F1E9F5;
+  }
+
+  input {
+    background-color: #2A2A2A;
+    color: white;
+    border-color: #888;
+  }
+
+  button {
+    background-color: #6A4C7A;
+  }
+
+  button:hover {
+    background-color: #7D5C91;
+  }
+}
