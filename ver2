@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+  <body>
+  <link rel="stylesheet" href="style.css">
+
+    <h1>Algebra Calculator</h1>
+    <p>Enter a single variable linear equation below and click solve! At this time, the calculator cannot solve divison problems where x is in the denominator.</p>
+
+<input type="text" id="equation" placeholder="Enter equation like 2x+3=7" size="30">
+<button onclick="solveEquation()">Solve</button>
+
+<h3 id="result"></h3>
+
+<script>
+function solveEquation() {
+    let input = document.getElementById("equation").value.replace(/\s+/g, "");
+
+    if (!input.includes("=")) {
+        document.getElementById("result").innerText = "Invalid equation :(";
+        return;
+    }
+
+    let [left, right] = input.split("=");
+
+    let variableMatch = input.match(/[a-zA-Z]/);
+    if (!variableMatch) {
+        document.getElementById("result").innerText = "No variable found.";
+        return;
+    }
+
+    let variable = variableMatch[0];
+
+    try {
+        let L = parseExpression(left, variable);
+        let R = parseExpression(right, variable);
+
+        // Cross multiply
+        let leftPoly = multiplyPoly(L.num, R.den);
+        let rightPoly = multiplyPoly(R.num, L.den);
+
+        let final = subtractPoly(leftPoly, rightPoly);
+
+        let a = final.a;
+        let b = final.b;
+
+        if (a === 0) {
+            if (b === 0) {
+                document.getElementById("result").innerText = "Infinite solutions.";
+            } else {
+                document.getElementById("result").innerText = "No solution.";
+            }
+            return;
+        }
+
+        let x = -b / a;
+        document.getElementById("result").innerText =
+            variable + " = " + Number(x.toFixed(5));
+
+    } catch (e) {
+        document.getElementById("result").innerText = "Invalid equation :(";
+    }
+}
+
+//polynomial
+
+function addPoly(p1, p2) {
+    return {
+        a: p1.a + p2.a,
+        b: p1.b + p2.b
+    };
+}
+
+function subtractPoly(p1, p2) {
+    return {
+        a: p1.a - p2.a,
+        b: p1.b - p2.b
+    };
+}
+
+function multiplyPoly(p1, p2) {
+    return {
+        a: p1.a * p2.b + p1.b * p2.a,
+        b: p1.b * p2.b
+    };
+}
+
+//fractionsssss
+
+function addFrac(f1, f2) {
+    return {
+        num: addPoly(
+            multiplyPoly(f1.num, f2.den),
+            multiplyPoly(f2.num, f1.den)
+        ),
+        den: multiplyPoly(f1.den, f2.den)
+    };
+}
+
+function multiplyFrac(f1, f2) {
+    return {
+        num: multiplyPoly(f1.num, f2.num),
+        den: multiplyPoly(f1.den, f2.den)
+    };
+}
+
+function negateFrac(f) {
+    return {
+        num: { a: -f.num.a, b: -f.num.b },
+        den: f.den
+    };
+}
+
+function invertFrac(f) {
+    return {
+        num: f.den,
+        den: f.num
+    };
+}
+
+//parser
+
+function parseExpression(expr, variable) {
+    expr = insertMultiplication(expr);
+
+    let tokens = tokenize(expr);
+    let pos = 0;
+
+    function parseAddSub() {
+        let result = parseMulDiv();
+        while (tokens[pos] === "+" || tokens[pos] === "-") {
+            let op = tokens[pos++];
+            let right = parseMulDiv();
+            if (op === "+") result = addFrac(result, right);
+            else result = addFrac(result, negateFrac(right));
+        }
+        return result;
+    }
+
+    function parseMulDiv() {
+        let result = parsePrimary();
+        while (tokens[pos] === "*" || tokens[pos] === "/") {
+            let op = tokens[pos++];
+            let right = parsePrimary();
+            if (op === "*") result = multiplyFrac(result, right);
+            else result = multiplyFrac(result, invertFrac(right));
+        }
+        return result;
+    }
+
+    function parsePrimary() {
+        let token = tokens[pos++];
+
+        if (token === "(") {
+            let expr = parseAddSub();
+            if (tokens[pos] !== ")") {
+                throw new Error("Missing closing parenthesis");
+            }
+            pos++;
+            return expr;
+        }
+
+        if (token === variable) {
+            return { num: { a: 1, b: 0 }, den: { a: 0, b: 1 } };
+        }
+
+        let num = parseFloat(token);
+        if (isNaN(num)) throw new Error("Invalid number");
+
+        return { num: { a: 0, b: num }, den: { a: 0, b: 1 } };
+    }
+
+    return parseAddSub();
+}
+
+
+function tokenize(expr) {
+    let tokens = expr.match(/[a-zA-Z]|\d+\.?\d*|[()+\-*/]/g);
+    if (!tokens) throw new Error("Invalid input");
+    return tokens;
+}
+
+function insertMultiplication(expr) {
+    return expr
+        .replace(/(\d)([a-zA-Z])/g, "$1*$2")
+        .replace(/([a-zA-Z])(\d)/g, "$1*$2")
+        .replace(/([a-zA-Z])\(/g, "$1*(")
+        .replace(/\)([a-zA-Z])/g, ")*$1")
+        .replace(/(\d)\(/g, "$1*(")
+        .replace(/\)(\d)/g, ")*$1");
+}
+</script>
+
+  </body>
+</html>
